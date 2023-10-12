@@ -80,12 +80,24 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.95" />
     <TextView
-        android:text="作者：田所浩二"
+        android:text="玩家："
         android:layout_width="wrap_content"
         android:textSize="24sp"
         android:layout_height="wrap_content" android:id="@+id/textView"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="@+id/guideline6"
-        app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.895"/>
+        app:layout_constraintEnd_toStartOf="@+id/guideline7"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.792"
+        app:layout_constraintHorizontal_bias="0.115"/>
+    <EditText android:layout_width="100dp" android:layout_height="wrap_content"
+              android:id="@+id/name"
+              android:textSize="24sp"
+              app:layout_constraintBottom_toTopOf="@+id/guideline3"
+              app:layout_constraintEnd_toStartOf="@+id/guideline7"
+              app:layout_constraintStart_toStartOf="@+id/guideline2"
+              app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.976"
+              app:layout_constraintHorizontal_bias="1.0">
+    </EditText>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

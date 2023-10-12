@@ -5,10 +5,21 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import static com.example.a2048.MainActivity.mainActivity;
 
 public class GameView extends GridLayout{
     public static GameView gameView;
@@ -46,7 +57,7 @@ public class GameView extends GridLayout{
     }
 
     public void replayGame(){
-        MainActivity.mainActivity.clearScore();
+        mainActivity.clearScore();
         for(int i = 0; i < 4; ++i){
             for(int j = 0; j < 4; ++j){
                 cards[i][j].setNum(0);
@@ -140,7 +151,7 @@ public class GameView extends GridLayout{
                             cards[i][j].setNum(0);
                             flag = true;
                             ind = ii + 1;//已经合过，该点不再合成
-                            MainActivity.mainActivity.addScore(cards[ii][j].getNum() / 2);
+                            mainActivity.addScore(cards[ii][j].getNum() / 2);
                             break;
                         }
                         //上面的块数字不同，退出循环
@@ -170,7 +181,7 @@ public class GameView extends GridLayout{
                             cards[i][j].setNum(0);
                             flag = true;
                             ind = ii;
-                            MainActivity.mainActivity.addScore(cards[ii][j].getNum() / 2);
+                            mainActivity.addScore(cards[ii][j].getNum() / 2);
                             break;
                         }
                         else break;
@@ -199,7 +210,7 @@ public class GameView extends GridLayout{
                             cards[i][j].setNum(0);
                             flag = true;
                             ind = jj + 1;
-                            MainActivity.mainActivity.addScore(cards[i][jj].getNum() / 2);
+                            mainActivity.addScore(cards[i][jj].getNum() / 2);
                             break;
                         }
                         else break;
@@ -228,7 +239,7 @@ public class GameView extends GridLayout{
                             cards[i][j].setNum(0);
                             flag = true;
                             ind = jj;
-                            MainActivity.mainActivity.addScore(cards[i][jj].getNum() / 2);
+                            mainActivity.addScore(cards[i][jj].getNum() / 2);
                             break;
                         }
                         else break;
@@ -270,8 +281,57 @@ public class GameView extends GridLayout{
         }
     }
 
-    private void gameOver(){
-        Toast.makeText(getContext(), "游戏结束", Toast.LENGTH_SHORT).show();
+    public void gameOver(){
+//        AlertDialog.Builder upload = new AlertDialog.Builder(getContext());
+//        upload.setTitle("上传成绩中...")
+//                .setView(new ProgressBar(getContext()))
+//                .setMessage("正在上传成绩")
+//                .create()
+//                .show();
+        Toast.makeText(getContext(), "游戏结束，正在上传成绩", Toast.LENGTH_SHORT).show();
+
+
+        String name = Varible.et.getText().toString();
+        if(name.isEmpty())
+            name = "Anonymous";
+
+        AlertDialog.Builder top10 = new AlertDialog.Builder(getContext());
+        // GET请求：
+        String responseText = "";
+        Response response;
+        try{
+            OkHttpClient okHttpClient = new OkHttpClient();
+            final Request request = new Request.Builder()
+                    .url("http://" + Varible.ip
+                            + ":" + Varible.port + "/" + Varible.war + "/top2048?op=getTop10"
+                            + "&name=" + name + "&score=" + Varible.score)
+                    .build();
+            final Call call = okHttpClient.newCall(request);
+            response = call.execute();
+            responseText = new String(response.body().bytes(), "UTF-8");
+        } catch (Exception e){
+            e.printStackTrace();
+            top10.setTitle("网络错误")
+                    .setMessage("发生连接错误，请检查互联网")
+                    .create()
+                    .show();
+            return;
+        }
+
+        // 处理response
+        StringBuilder message = new StringBuilder();
+        String[] entity = responseText.trim().split("\r\n");
+        for(int i=1;i<entity.length;i++){
+            String[] temp = entity[i].split(":");
+            message.append(i).append(". ").append(temp[0]).append("：").append(temp[1]).append("\n");
+        }
+        if(entity[0].equals("true"))
+            top10.setTitle("恭喜您破纪录：");
+        else
+            top10.setTitle("排行榜：");
+        top10.setMessage(message)
+                .create()
+                .show();
     }
 
     private int GetCardWidth() {

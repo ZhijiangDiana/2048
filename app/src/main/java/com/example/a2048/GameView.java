@@ -15,9 +15,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import static com.example.a2048.MainActivity.mainActivity;
 
@@ -288,7 +285,8 @@ public class GameView extends GridLayout{
 //                .setMessage("正在上传成绩")
 //                .create()
 //                .show();
-        Toast.makeText(getContext(), "游戏结束，正在上传成绩", Toast.LENGTH_SHORT).show();
+        Toast t = Toast.makeText(getContext(), "游戏结束，正在上传成绩", Toast.LENGTH_LONG);
+        t.show();
 
 
         String name = Varible.et.getText().toString();
@@ -320,11 +318,21 @@ public class GameView extends GridLayout{
 
         // 处理response
         StringBuilder message = new StringBuilder();
-        String[] entity = responseText.trim().split("\r\n");
+        if(responseText.contains("HTTP Status")){
+            top10.setTitle("发生错误")
+                    .setMessage(responseText)
+                    .create()
+                    .show();
+            return;
+        }
+        String[] entity = responseText.trim().split("&&");
         for(int i=1;i<entity.length;i++){
             String[] temp = entity[i].split(":");
             message.append(i).append(". ").append(temp[0]).append("：").append(temp[1]).append("\n");
         }
+
+        // 展示窗口
+        t.cancel();
         if(entity[0].equals("true"))
             top10.setTitle("恭喜您破纪录：");
         else
@@ -332,6 +340,9 @@ public class GameView extends GridLayout{
         top10.setMessage(message)
                 .create()
                 .show();
+
+        // 重新开局
+        replayGame();
     }
 
     private int GetCardWidth() {
